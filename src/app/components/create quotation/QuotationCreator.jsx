@@ -7,7 +7,14 @@ import { format, addMonths } from "date-fns";
 // Import shadcn components
 import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/app/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from "@/app/components/ui/sheet";
 
 // Import step components
 import QuotationDetails from "./QuotationDetails";
@@ -23,21 +30,21 @@ export default function QuotationCreator({ isOpen, onClose }) {
     quotationDate: format(new Date(), "yyyy-MM-dd"),
     validDate: format(addMonths(new Date(), 1), "yyyy-MM-dd"),
     customLabel: "",
-    
+
     // Client Details
     clientName: "",
     address: "",
     email: "",
     phoneNumber: "",
     countryCode: "+94",
-    
+
     // Package Details
     systemType: "",
     capacity: "",
     panelCount: "",
     inverterCode: "",
     pvOutput: "",
-    amount: ""
+    amount: "",
   });
 
   // Generate sequential quotation ID
@@ -46,11 +53,11 @@ export default function QuotationCreator({ isOpen, onClose }) {
       // Get the last ID from localStorage or start with 0
       const lastId = parseInt(localStorage.getItem("lastQuotationId") || "0");
       const newId = lastId + 1;
-      
+
       // Update the form data with the new ID - just using the number now
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        quotationId: `${newId}`
+        quotationId: `${newId}`,
       }));
     }
   }, [isOpen]);
@@ -64,18 +71,31 @@ export default function QuotationCreator({ isOpen, onClose }) {
   const calculateStepCompletion = (stepNumber) => {
     if (stepNumber === 1) {
       // Count filled fields in step 1
-      const step1Fields = ['quotationId', 'quotationDate', 'validDate'];
-      const filledFields = step1Fields.filter(field => formData[field]).length;
+      const step1Fields = ["quotationId", "quotationDate", "validDate"];
+      const filledFields = step1Fields.filter(
+        (field) => formData[field]
+      ).length;
       return Math.round((filledFields / step1Fields.length) * 100);
     } else if (stepNumber === 2) {
       // Count filled fields in step 2
-      const step2Fields = ['clientName', 'address', 'email', 'phoneNumber'];
-      const filledFields = step2Fields.filter(field => formData[field]).length;
+      const step2Fields = ["clientName", "address", "email", "phoneNumber"];
+      const filledFields = step2Fields.filter(
+        (field) => formData[field]
+      ).length;
       return Math.round((filledFields / step2Fields.length) * 100);
     } else if (stepNumber === 3) {
       // Count filled fields in step 3
-      const step3Fields = ['systemType', 'capacity', 'panelCount', 'inverterCode', 'pvOutput', 'amount'];
-      const filledFields = step3Fields.filter(field => formData[field]).length;
+      const step3Fields = [
+        "systemType",
+        "capacity",
+        "panelCount",
+        "inverterCode",
+        "pvOutput",
+        "amount",
+      ];
+      const filledFields = step3Fields.filter(
+        (field) => formData[field]
+      ).length;
       return Math.round((filledFields / step3Fields.length) * 100);
     }
     return 0;
@@ -83,19 +103,15 @@ export default function QuotationCreator({ isOpen, onClose }) {
 
   // Calculate overall progress percentage
   const getProgressPercentage = () => {
-    // Get completion percentages for each step
-    const step1Completion = calculateStepCompletion(1);
-    const step2Completion = step >= 2 ? calculateStepCompletion(2) : 0;
-    const step3Completion = step >= 3 ? calculateStepCompletion(3) : 0;
-    
-    // Calculate weighted average based on current step
-    if (step === 1) {
-      return step1Completion;
-    } else if (step === 2) {
-      return Math.round((step1Completion + step2Completion) / 2);
-    } else {
-      return Math.round((step1Completion + step2Completion + step3Completion) / 3);
-    }
+    const step1Complete = calculateStepCompletion(1) === 100;
+  const step2Complete = calculateStepCompletion(2) === 100;
+  const step3Complete = calculateStepCompletion(3) === 100;
+
+  if (step3Complete) return 100;
+  if (step2Complete) return 70;
+  if (step1Complete) return 30;
+
+  return 0;
   };
 
   // Get step title
@@ -115,12 +131,25 @@ export default function QuotationCreator({ isOpen, onClose }) {
   // Check if current step is complete and can proceed
   const canProceed = () => {
     if (step === 1) {
-      return formData.quotationId && formData.quotationDate && formData.validDate;
+      return (
+        formData.quotationId && formData.quotationDate && formData.validDate
+      );
     } else if (step === 2) {
-      return formData.clientName && formData.address && formData.email && formData.phoneNumber;
+      return (
+        formData.clientName &&
+        formData.address &&
+        formData.email &&
+        formData.phoneNumber
+      );
     } else if (step === 3) {
-      return formData.systemType && formData.capacity && formData.panelCount && 
-             formData.inverterCode && formData.pvOutput && formData.amount;
+      return (
+        formData.systemType &&
+        formData.capacity &&
+        formData.panelCount &&
+        formData.inverterCode &&
+        formData.pvOutput &&
+        formData.amount
+      );
     }
     return false;
   };
@@ -129,7 +158,7 @@ export default function QuotationCreator({ isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) {
       setStep(1);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         customLabel: "",
         clientName: "",
@@ -142,7 +171,7 @@ export default function QuotationCreator({ isOpen, onClose }) {
         panelCount: "",
         inverterCode: "",
         pvOutput: "",
-        amount: ""
+        amount: "",
       }));
     }
   }, [isOpen]);
@@ -156,7 +185,7 @@ export default function QuotationCreator({ isOpen, onClose }) {
     // Save the current ID to localStorage for future reference
     const idNumber = parseInt(formData.quotationId);
     localStorage.setItem("lastQuotationId", idNumber.toString());
-    
+
     // Submit the form
     console.log("Form submitted:", formData);
     onClose();
@@ -166,29 +195,32 @@ export default function QuotationCreator({ isOpen, onClose }) {
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="max-h-[80vh] rounded-t-xl p-0">
-        <SheetHeader className="px-4 pt-4 pb-2">
-          <div className="flex justify-between items-center">
-            <div>
-              <SheetTitle className="text-lg font-semibold text-[#163300]">
-                Create Quotation
-              </SheetTitle>
-              <SheetDescription className="text-sm text-gray-500">
-                {getStepTitle()}
-              </SheetDescription>
-            </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
+      <SheetContent side="bottom" className="h-[80vh] rounded-t-2xl p-0">
+        <SheetHeader className="relative px-4 pt-4 pb-2">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="absolute right-4 top-4"
+          >
+            <X className="h-10 w-10" />
+          </Button>
+
+          <div className="text-center">
+            <SheetTitle className="text-2xl font-semibold text-[#163300]">
+              Create Quotation
+            </SheetTitle>
+            <SheetDescription className="text-sm text-[#163300]">
+              {getStepTitle()}
+            </SheetDescription>
           </div>
         </SheetHeader>
 
         {/* Progress bar */}
         <div className="px-4 pt-2">
           <Progress value={getProgressPercentage()} className="h-2 bg-gray-200">
-            <div 
-              className="h-full bg-green-900" 
-              style={{ width: `${getProgressPercentage()}%` }} 
+            <div
+              className="h-full bg-[#163300]"
+              style={{ width: `${getProgressPercentage()}%` }}
             />
           </Progress>
           <div className="text-right text-xs text-gray-500 mt-1">
@@ -206,11 +238,12 @@ export default function QuotationCreator({ isOpen, onClose }) {
           )}
         </div>
 
-        <SheetFooter className="flex px-4 py-4 gap-4 border-t">
+        <SheetFooter className="flex flex-row justify-between mb-3">
           {step > 1 ? (
             <Button
+              size="lg"
               variant="outline"
-              className="flex-1"
+              className="flex-1 text-base border !border-[#163300]"
               onClick={() => setStep(step - 1)}
             >
               Back
@@ -218,15 +251,17 @@ export default function QuotationCreator({ isOpen, onClose }) {
           ) : (
             <Button
               variant="outline"
-              className="flex-1"
+              size="lg"
+              className="flex-1 text-base border !border-[#163300]"
               onClick={onClose}
             >
               Back
             </Button>
           )}
-          
+
           <Button
-            className="flex-1 bg-[#9FE870] text-[#163300] hover:bg-[#8FD760]"
+            className="flex-1 bg-[#9FE870] text-[#163300] text-base"
+            size="lg"
             disabled={!canProceed()}
             onClick={() => {
               if (step < 3) {
