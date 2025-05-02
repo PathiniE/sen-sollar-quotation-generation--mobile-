@@ -1,9 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { User, LogOut } from "lucide-react";
 
 export default function ProfileDropdown({ user, onClose, onLogout }) {
+  const router = useRouter();
+
+  const handleProfileClick = () => {
+    router.push("/pages/profile");
+    onClose();
+  };
+
   return (
     <div className="absolute right-0 left-0 top-16 mt-1 z-50">
       <div className="bg-white rounded-md shadow-lg mx-4 overflow-hidden border border-gray-300">
@@ -21,7 +29,7 @@ export default function ProfileDropdown({ user, onClose, onLogout }) {
         <div className="py-1 text-[#163300]">
           <button
             className="w-full px-4 py-2 text-left text-sm flex items-center space-x-2 hover:bg-gray-100"
-            onClick={onClose}
+            onClick={handleProfileClick}
           >
             <User className="h-4 w-4" />
             <span>Profile</span>
